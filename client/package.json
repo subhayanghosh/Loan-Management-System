@@ -11,10 +11,12 @@
     "react-scripts": "3.4.3"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
+    "start": "npm run watch:css && react-scripts start",
+    "build": "npm run build:css && react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "build:css": "tailwindcss build src/css/tailwind.css -o src/css/index.css",
+    "watch:css": "tailwindcss build src/css/tailwind.css -o src/css/index.css"
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -30,5 +32,10 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "autoprefixer": "^10.0.1",
+    "postcss-cli": "^8.0.0",
+    "tailwindcss": "^1.8.10"
   }
 }
