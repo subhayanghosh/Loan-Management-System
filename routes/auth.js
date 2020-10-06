@@ -31,6 +31,22 @@ router.post('/register', async (req,res) => {
     }
 });
 
+// Generate token
+const generateToken = (user) => jwt.sign({ _id: user }, process.env.TOKEN_SECRET, { expiresIn: '30s' });
+
+// Generate token from refresh token
+router.post('/token', (req, res) => {
+    const refreshToken = req.header('refresh-token');
+    if(!refreshToken) return res.status(401).send('Access Denied');
+    try {
+        const verified = jwt.verify(refreshToken, process.env.TOKEN_SECRET);
+        const token = generateToken(verified._id);
+        res.json({token});
+    } catch (err) {
+        res.status(400).send(err);
+    }
+});
+
 // Login
 router.post('/login', async (req, res) => {
     // Validate User Data
@@ -45,14 +61,9 @@ router.post('/login', async (req, res) => {
     const validPass = await bcrypt.compare(req.body.password, user.password);
     if (!validPass) return res.status(400).send('Invalid password');
 
-    // Generate token
-    const generateToken = (user) => {
-        return jwt.sign({_id: user._id}, process.env.TOKEN_SECRET, { expiresIn: '15s' });
-    }
-
-    // Assign a token
-    const token = generateToken(user);
-    const refreshToken = jwt.sign({_id: user._id}, process.env.TOKEN_SECRET);
+    // Assign token and create and assign refresh token
+    const token = generateToken(user._id);
+    const refreshToken = jwt.sign({_id: user._id}, process.env.TOKEN_SECRET, { expiresIn: '1d' });
     res.header('auth-token', token).json({token: token, refreshToken: refreshToken});
 });
 
